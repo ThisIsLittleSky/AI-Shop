@@ -65,7 +65,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
+        <!-- Apache Commons Codec 依赖（提供DigestUtils工具类） -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version> <!-- 推荐稳定版，兼容大部分项目，可按需升级 -->
+        </dependency>
         <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
