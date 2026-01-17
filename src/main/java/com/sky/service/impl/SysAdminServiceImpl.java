@@ -2,14 +2,17 @@ package com.sky.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sky.dto.LoginResponse;
 import com.sky.dto.adminLoginRequest;
 import com.sky.pojo.Goods;
 import com.sky.pojo.SysAdmin;
 import com.sky.service.SysAdminService;
 import com.sky.mapper.SysAdminMapper;
 import com.sky.util.CaptchaUtil;
+import com.sky.util.JwtUtil;
 import com.sky.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -28,6 +31,12 @@ public class SysAdminServiceImpl extends ServiceImpl<SysAdminMapper, SysAdmin> i
     @Autowired
     private CaptchaUtil captchaUtil;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Value("${jwt.expiration:86400000}")
+    private Long expiration;
+
     /*
     * 验证码实现
     * */
@@ -45,7 +54,7 @@ public class SysAdminServiceImpl extends ServiceImpl<SysAdminMapper, SysAdmin> i
     * 管理员登录
     * */
     @Override
-    public Result<String> login(adminLoginRequest request) {
+    public Result<LoginResponse> login(adminLoginRequest request) {
         // 1. 验证验证码(CaptchaId是校验验证，用于核对验证码。CaptchaCode是用户输入)
         boolean captchaValid = captchaUtil.verifyCaptcha(
                 request.getCaptchaId(),
@@ -74,8 +83,18 @@ public class SysAdminServiceImpl extends ServiceImpl<SysAdminMapper, SysAdmin> i
         if (!encryptedPassword.equals(sysAdmin.getPassword())) {
             return Result.error(400, "用户名或密码错误");
         }
-        // 6. 登录成功（这里可以生成JWT token或session）
-        return Result.success("登录成功");
+        // 6. 登录成功，生成JWT token
+        String token = jwtUtil.generateToken(sysAdmin.getId(), sysAdmin.getUsername(), "admin");
+        
+        // 7. 构建登录响应
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+        loginResponse.setUserId(sysAdmin.getId());
+        loginResponse.setUsername(sysAdmin.getUsername());
+        loginResponse.setUserType("admin");
+        loginResponse.setExpiration(System.currentTimeMillis() + expiration);
+
+        return Result.success(loginResponse);
     }
 
 

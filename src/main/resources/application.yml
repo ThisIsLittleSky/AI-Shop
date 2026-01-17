@@ -55,3 +55,8 @@ logging:
     com.sky: DEBUG
     com.baomidou.mybatisplus: DEBUG
 
+# JWT配置
+jwt:
+  secret: AI_Shop_Secret_Key_2024_For_JWT_Token_Generation_And_Verification
+  expiration: 86400000 # 24小时（毫秒）
+

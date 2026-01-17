@@ -3,13 +3,16 @@ package com.sky.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sky.dto.LoginRequest;
+import com.sky.dto.LoginResponse;
 import com.sky.dto.RegisterRequest;
 import com.sky.pojo.SysUser;
 import com.sky.service.SysUserService;
 import com.sky.mapper.SysUserMapper;
 import com.sky.util.CaptchaUtil;
+import com.sky.util.JwtUtil;
 import com.sky.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -25,6 +28,12 @@ import java.util.Map;
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService{
     @Autowired
     private CaptchaUtil captchaUtil;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Value("${jwt.expiration:86400000}")
+    private Long expiration;
 
 
     /*
@@ -44,7 +53,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     * 用户登录实现
     * */
     @Override
-    public Result<String> login(LoginRequest request) {
+    public Result<LoginResponse> login(LoginRequest request) {
         // 1. 验证验证码(CaptchaId是校验验证，用于核对验证码。CaptchaCode是用户输入)
         boolean captchaValid = captchaUtil.verifyCaptcha(
                 request.getCaptchaId(),
@@ -87,8 +96,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return Result.error(400, "用户名或密码错误");
         }
 
-        // 6. 登录成功（这里可以生成JWT token或session）
-        return Result.success("登录成功");
+        // 6. 登录成功，生成JWT token
+        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), "user");
+        
+        // 7. 构建登录响应
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+        loginResponse.setUserId(user.getId());
+        loginResponse.setUsername(user.getUsername());
+        loginResponse.setUserType("user");
+        loginResponse.setExpiration(System.currentTimeMillis() + expiration);
+
+        return Result.success(loginResponse);
 
     }
 

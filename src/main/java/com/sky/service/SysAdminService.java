@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.dto.LoginResponse;
 import com.sky.dto.adminLoginRequest;
 import com.sky.pojo.SysAdmin;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -16,6 +17,6 @@ public interface SysAdminService extends IService<SysAdmin> {
     //验证码
     Result<Map<String, String>> generateCaptcha();
     //管理员登录
-    Result<String> login(adminLoginRequest request);
+    Result<LoginResponse> login(adminLoginRequest request);
 
 }

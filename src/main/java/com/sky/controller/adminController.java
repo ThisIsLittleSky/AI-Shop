@@ -2,7 +2,6 @@ package com.sky.controller;
 
 import com.sky.dto.adminLoginRequest;
 import com.sky.service.SysAdminService;
-import com.sky.service.SysUserService;
 import com.sky.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +38,7 @@ public class adminController {
     * 管理员登录
     * */
     @PostMapping("/login")
-    public Result<String> login(@RequestBody adminLoginRequest request) {
+    public Result<com.sky.dto.LoginResponse> login(@RequestBody adminLoginRequest request) {
         return sysAdminService.login(request);
     }
 

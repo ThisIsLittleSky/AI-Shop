@@ -1,6 +1,7 @@
 package com.sky.service;
 
 import com.sky.dto.LoginRequest;
+import com.sky.dto.LoginResponse;
 import com.sky.dto.RegisterRequest;
 import com.sky.pojo.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -18,7 +19,7 @@ public interface SysUserService extends IService<SysUser> {
     //生成验证码
     Result<Map<String, String>> generateCaptcha();
     //用户登录
-    Result<String> login(LoginRequest request);
+    Result<LoginResponse> login(LoginRequest request);
     //用户注册
     Result<String> register(RegisterRequest request);
 }

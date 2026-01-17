@@ -45,7 +45,7 @@ public class userController {
      */
     @PostMapping("/login")
     //读取请求体里的LoginRequest类（已定义），用@RequestBody
-    public Result<String> login(@RequestBody LoginRequest request) {
+    public Result<com.sky.dto.LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.login(request);
     }
 
