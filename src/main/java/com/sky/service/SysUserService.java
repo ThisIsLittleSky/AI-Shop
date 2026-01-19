@@ -1,8 +1,6 @@
 package com.sky.service;
 
-import com.sky.dto.LoginRequest;
-import com.sky.dto.LoginResponse;
-import com.sky.dto.RegisterRequest;
+import com.sky.dto.*;
 import com.sky.pojo.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sky.util.Result;
@@ -22,4 +20,8 @@ public interface SysUserService extends IService<SysUser> {
     Result<LoginResponse> login(LoginRequest request);
     //用户注册
     Result<String> register(RegisterRequest request);
+    //用户信息查询
+    Result<UserProfileResponse> getProfile(Long userId);
+    //修改用户信息
+    Result<String> updateProfile(Long userId, UpdateUserProfileRequest request);
 }

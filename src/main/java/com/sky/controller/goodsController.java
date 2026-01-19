@@ -46,6 +46,7 @@ public class goodsController {
      * GET /api/goods/list
      * 参数：current=1&size=10&categoryId=1&keyword=手机&status=1
      */
+    // TODO 放redis里做缓存
     @GetMapping("/list")
     public Result<IPage<GoodsListResponse>> getGoodsList(GoodsPageQuery query) {
         // 设置默认值

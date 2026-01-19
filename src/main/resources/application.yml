@@ -60,3 +60,20 @@ jwt:
   secret: AI_Shop_Secret_Key_2024_For_JWT_Token_Generation_And_Verification
   expiration: 86400000 # 24小时（毫秒）
 
+# 阿里云OSS配置
+# 注意：优先从JSON文件读取配置（不参与Git备份），如果JSON文件不存在则使用下面的配置
+aliyun:
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com  # OSS区域Endpoint（根据你的Bucket所在区域修改）
+    access-key-id: your-access-key-id        # 你的AccessKeyId
+    access-key-secret: your-access-key-secret # 你的AccessKeySecret
+    bucket-name: your-bucket-name            # 你的Bucket名称
+    domain:                                  # 可选：自定义域名，如果不配置则使用OSS默认域名
+    path-prefix: avatar/                     # 文件存储路径前缀
+
+# OSS JSON配置文件路径（相对于项目根目录）
+# 如果配置了此路径，会从JSON文件读取OSS配置并覆盖上面的配置
+oss:
+  config:
+    file: config/oss-config.json
+

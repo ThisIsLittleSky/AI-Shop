@@ -2,11 +2,17 @@ package com.sky.controller;
 
 import com.sky.dto.LoginRequest;
 import com.sky.dto.RegisterRequest;
+import com.sky.dto.UpdateUserProfileRequest;
+import com.sky.dto.UserProfileResponse;
 import com.sky.service.SysUserService;
 import com.sky.util.CaptchaUtil;
+import com.sky.util.OssUtil;
 import com.sky.util.Result;
+import com.sky.util.UserContext;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -28,6 +34,8 @@ public class userController {
     private SysUserService userService;
     @Autowired
     private CaptchaUtil captchaUtil;
+    @Autowired
+    private OssUtil ossUtil;
 
     /**
      * 生成验证码
@@ -59,4 +67,64 @@ public class userController {
         return userService.register(request);
     }
 
+    /**
+     * 查询个人资料
+     * GET /api/user/profile
+     * Headers: Authorization: Bearer {token}
+     */
+    // TODO 加入用户昵称，现有的username当做账号
+    @GetMapping("/profile")
+    public Result<UserProfileResponse> getProfile(HttpServletRequest request) {
+        Long userId = UserContext.getUserId(request);
+        if (userId == null) {
+            return Result.error(400,"未登录或token无效");
+        }
+        return userService.getProfile(userId);
+    }
+
+    /**
+     * 更新个人资料
+     * PUT /api/user/profile
+     * Headers: Authorization: Bearer {token}
+     * Body: {"phone": "13800138000", "avatar": "http://example.com/avatar.jpg"}
+     */
+    @PutMapping("/profile")
+    public Result<String> updateProfile(
+            HttpServletRequest HttpRequest,
+            @RequestBody UpdateUserProfileRequest request
+    ){
+        Long userId = UserContext.getUserId(HttpRequest);
+        if (userId == null) {
+            return Result.error(404,"未登录或token无效");
+        }
+        return userService.updateProfile(userId, request);
+    }
+
+    /**
+     * 上传头像
+     * POST /api/user/upload/avatar
+     * Headers: Authorization: Bearer {token}
+     * Content-Type: multipart/form-data
+     * Body: file (文件)
+     */
+    @PostMapping("/upload/avatar")
+    public Result<String> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        try {
+            Long userId = UserContext.getUserId(request);
+            if (userId == null) {
+                return Result.error(401, "未登录或token无效");
+            }
+            
+            // 上传到OSS
+            String fileUrl = ossUtil.uploadAvatar(file);
+            
+            return Result.success(fileUrl);
+        } catch (IllegalArgumentException e) {
+            return Result.error(400, e.getMessage());
+        } catch (Exception e) {
+            return Result.error(500, "上传失败：" + e.getMessage());
+        }
+    }
 }

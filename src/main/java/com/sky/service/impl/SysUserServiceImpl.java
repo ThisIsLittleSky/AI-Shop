@@ -2,15 +2,14 @@ package com.sky.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.sky.dto.LoginRequest;
-import com.sky.dto.LoginResponse;
-import com.sky.dto.RegisterRequest;
+import com.sky.dto.*;
 import com.sky.pojo.SysUser;
 import com.sky.service.SysUserService;
 import com.sky.mapper.SysUserMapper;
 import com.sky.util.CaptchaUtil;
 import com.sky.util.JwtUtil;
 import com.sky.util.Result;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -163,6 +162,62 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return Result.success("注册成功");
         } else {
             return Result.error(500, "注册失败，请稍后重试");
+        }
+    }
+
+    //用户信息查询
+    @Override
+    public Result<UserProfileResponse> getProfile(Long userId) {
+        //1.用lambadaQueryWrapper构建查询条件。.eq(SysUser::getId,userId)
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getId, userId);
+        //2.查询
+        SysUser user = this.getOne(queryWrapper);
+        //3.判断用户是否存在、是否被禁用
+        if (user == null) {
+            return Result.error(404,"用户不存在");
+        }
+        if (user.getStatus() != null && user.getStatus() == 0) {
+            return Result.error(400,"用户已被禁用");
+        }
+        //4.新建DTO类并用BeanUtils工具把user属性copy给userProfileResponse。
+        UserProfileResponse userProfileResponse = new UserProfileResponse();
+        BeanUtils.copyProperties(user, userProfileResponse);
+        return Result.success(userProfileResponse);
+    }
+
+    @Override
+    public Result<String> updateProfile(Long userId, UpdateUserProfileRequest request) {
+        //1.构建查询条件
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getId,userId);
+        //2.查询后判断用户状态
+        SysUser user = this.getOne(queryWrapper);
+        if (user == null) {
+            return Result.error(404,"用户不存在");
+        }
+        if (user.getStatus() != null && user.getStatus() == 0) {
+            return Result.error(404,"用户被禁用");
+        }
+        // 3. 更新可修改的字段
+        boolean needUpdate = false;
+        //4.验证手机号
+        //trim() 是 Java String类的内置实例方法，其核心功能是去除字符串的开头（前导）和结尾（尾随）的空白字符
+        if(request.getPhone()==null && request.getPhone().trim().length()!=11){
+            return Result.error(400, "手机号格式不正确");
+        }
+        user.setPhone(request.getPhone().trim());
+        needUpdate = true;
+        // 5.更新头像
+        if (request.getAvatar() != null) {
+            user.setAvatar(request.getAvatar().trim().isEmpty() ? null : request.getAvatar().trim());
+            needUpdate = true;
+        }
+        if (needUpdate) {
+            this.updateById(user);
+            return Result.success("更新成功");
+        }else{
+            return Result.error(400,"没有需要更新的字段");
         }
     }
 }
