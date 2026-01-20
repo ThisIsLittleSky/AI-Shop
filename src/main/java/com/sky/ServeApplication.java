@@ -13,9 +13,9 @@ public class ServeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ServeApplication.class, args);
-        System.out.println("================================");
+        System.out.println("=================================");
         System.out.println("启动成功(*^▽^*)");
-        System.out.println("================================");
+        System.out.println("=================================");
     }
 
 }
