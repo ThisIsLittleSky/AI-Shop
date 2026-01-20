@@ -1,5 +1,7 @@
 package com.sky.service;
 
+import com.sky.dto.AdminCategoryCreateRequest;
+import com.sky.dto.AdminCategoryUpdateRequest;
 import com.sky.pojo.GoodsCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sky.util.Result;
@@ -14,4 +16,12 @@ import java.util.List;
 public interface GoodsCategoryService extends IService<GoodsCategory> {
     //商品分类列表查询
     Result<List> getCategoryList();
+    //管理员获取所有商品分类
+    Result<List<GoodsCategory>> getAllCategories();
+    //管理员创建商品分类
+    Result<String> createCategory(AdminCategoryCreateRequest request);
+    //管理员修改商品分类
+    Result<String> updateCategory(Long id, AdminCategoryUpdateRequest request);
+    //管理删除商品
+    Result<String> deleteCategory(Long id);
 }

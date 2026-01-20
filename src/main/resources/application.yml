@@ -42,9 +42,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+      logic-delete-field: deleted # 全局逻辑删除字段名
+      logic-delete-value: 1 # 删除值
+      logic-not-delete-value: 0 # 未删除值
   mapper-locations: classpath*:/mapper/**/*.xml
   type-aliases-package: com.sky.entity
 
@@ -58,7 +58,8 @@ logging:
 # JWT配置
 jwt:
   secret: AI_Shop_Secret_Key_2024_For_JWT_Token_Generation_And_Verification
-  expiration: 86400000 # 24小时（毫秒）
+  #expiration: 86400000 # 24小时（毫秒）
+  expiration: 864000000000000
 
 # 阿里云OSS配置
 # 注意：优先从JSON文件读取配置（不参与Git备份），如果JSON文件不存在则使用下面的配置
